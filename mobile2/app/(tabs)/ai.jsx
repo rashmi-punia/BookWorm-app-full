@@ -7,14 +7,18 @@ import {
   ActivityIndicator,
   ScrollView,
   StyleSheet,
+  TouchableOpacity,
 } from "react-native";
 import * as DocumentPicker from "expo-document-picker";
+import stylesImp from "../../assets/styles/profile.styles";
 
 export default function AskPdfScreen() {
   const [pdfFile, setPdfFile] = useState(null);
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState("");
   const [loading, setLoading] = useState(false);
+
+  //   console.log("pdffile", pdfFile);
 
   const pickPdfFile = async () => {
     try {
@@ -58,7 +62,20 @@ export default function AskPdfScreen() {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Button title="📄 Pick PDF File" onPress={pickPdfFile} />
+      <Text
+        style={{
+          fontSize: 22,
+          textAlign: "center",
+          marginVertical: 12,
+          color: "#EC407A",
+        }}
+      >
+        Upload your File to make use of Rag
+      </Text>
+      <TouchableOpacity style={stylesImp.logoutButton} onPress={pickPdfFile}>
+        <Text style={stylesImp.logoutText}>📄 Pick PDF File</Text>
+      </TouchableOpacity>
+
       {pdfFile && <Text style={styles.fileInfo}>Selected: {pdfFile.name}</Text>}
 
       {pdfFile && (
@@ -70,11 +87,13 @@ export default function AskPdfScreen() {
             onChangeText={setQuestion}
             multiline
           />
-          <Button
-            title="Ask Question"
+          <TouchableOpacity
+            style={[stylesImp.logoutButton, { marginTop: 12 }]}
             onPress={handleAskQuestion}
             disabled={loading}
-          />
+          >
+            <Text style={stylesImp.logoutText}>Ask Question</Text>
+          </TouchableOpacity>
 
           {loading && <ActivityIndicator style={{ marginTop: 20 }} />}
 
@@ -82,10 +101,13 @@ export default function AskPdfScreen() {
             <View style={styles.answerContainer}>
               <Text style={styles.answerHeading}>Answer:</Text>
               <Text style={styles.answerText}>{answer}</Text>
-              <Button
-                title="Ask Another Question"
+             
+              <TouchableOpacity
+                style={stylesImp.logoutButton}
                 onPress={() => setQuestion("")}
-              />
+              >
+                <Text style={stylesImp.logoutText}>Ask another Question</Text>
+              </TouchableOpacity>
             </View>
           )}
         </>
@@ -99,6 +121,8 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: "#fff",
     flexGrow: 1,
+    // alignItems: 'center',
+    justifyContent: "center",
   },
   fileInfo: {
     marginTop: 10,
