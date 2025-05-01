@@ -31,6 +31,7 @@ export default function AskPdfScreen() {
         setAnswer("");
         setQuestion("");
       }
+    
     } catch (error) {
       console.log("PDF Picker Error:", error);
     }
@@ -43,8 +44,17 @@ export default function AskPdfScreen() {
 
     try {
       // Example function – replace with real backend or AI API logic
-      const response = await sendPdfAndQuestion(pdfFile, question);
-      setAnswer(response);
+      const response = await fetch('http://192.168.184.229:8000/get_answer',{
+        method:"POST",
+        body: JSON.stringify({
+          question: question
+        }),
+        headers:{
+          'Content-Type':'application/json'
+        }
+      });
+      const res = await response.json();
+      setAnswer(res.answer);
     } catch (err) {
       console.error("Error getting answer:", err);
       setAnswer("Failed to fetch answer.");
@@ -54,10 +64,34 @@ export default function AskPdfScreen() {
   };
 
   // 🧠 Simulated function to mimic backend/AI answer
-  const sendPdfAndQuestion = async (file, question) => {
-    // In real use: upload PDF + question to backend (e.g., OpenAI, Langchain, etc.)
-    await new Promise((res) => setTimeout(res, 1000)); // simulate loading
-    return `Simulated answer for: "${question}" based on file: ${file.name}`;
+  const sendPdfAndQuestion = async () => {
+    try {
+      const formData = new FormData()
+
+      formData.append('file',{
+        uri: pdfFile.uri,
+        name: pdfFile.name,
+        type: pdfFile.mimeType || 'application/pdf'
+      })
+
+      const uploadResponse = await fetch(`http://192.168.184.229:8000/upload_and_prepare`,{
+        method:"POST",
+        body: formData,
+        headers:{
+          'Content-Type':'multipart/form-data'
+        }
+      })
+      
+      if (uploadResponse.ok){
+        alert("You can ask questions now")
+      } else{
+        alert("Error preparing file")
+      }
+
+    } catch (err) {
+        console.log("Error sending the pdf: ", err)
+        throw err
+    }
   };
 
   return (
@@ -77,6 +111,18 @@ export default function AskPdfScreen() {
       </TouchableOpacity>
 
       {pdfFile && <Text style={styles.fileInfo}>Selected: {pdfFile.name}</Text>}
+
+      {pdfFile && (
+        <TouchableOpacity
+        style={[stylesImp.logoutButton, { marginTop: 12 }]}
+        onPress={sendPdfAndQuestion}
+        disabled={loading}
+      >
+        <Text style={stylesImp.logoutText}>send file</Text>
+      </TouchableOpacity>
+      )}
+
+
 
       {pdfFile && (
         <>
